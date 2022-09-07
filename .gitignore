@@ -1,0 +1,9 @@
+# Test binary
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Editor and IDE
+.idea
+*~
