@@ -1,3 +1,4 @@
+// Package restconf contains methods for configuring a RESTCONF agent
 package restconf
 
 import (
@@ -15,27 +16,6 @@ const (
 	contentType       = "application/yang-config+json"
 )
 
-type IetfInterfaceRequest struct {
-	IetfInterface IetfInterface `json:"ietf-interfaces:interface"`
-}
-
-type IetfInterface struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Type        string `json:"type"`
-	Enabled     bool   `json:"enabled"`
-	IPv4        Ipv4   `json:"ietf-ip:ipv4"`
-}
-
-type Ipv4 struct {
-	Address []Address `json:"address"`
-}
-
-type Address struct {
-	Ip      string `json:"ip"`
-	Netmask string `json:"netmask"`
-}
-
 type Client struct {
 	httpClient  *http.Client
 	restconfURL string
@@ -43,6 +23,7 @@ type Client struct {
 	password    string
 }
 
+// New creates a client for a given RESTCONF agent
 func New(timeout time.Duration, restconfURL string, username string, password string) *Client {
 	return &Client{
 		httpClient:  &http.Client{Timeout: timeout},
@@ -52,6 +33,7 @@ func New(timeout time.Duration, restconfURL string, username string, password st
 	}
 }
 
+// NewLoopbackInterface creates a loopback interface on routers via RESTCONF API
 func (c *Client) NewLoopbackInterface(ctx context.Context, req IetfInterfaceRequest) (*http.Response, error) {
 	config, err := json.Marshal(req)
 	if err != nil {
