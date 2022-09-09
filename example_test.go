@@ -13,7 +13,7 @@ func ExampleNew() {
 	// Output: URL
 }
 
-func ExampleNewLoopbackInterface() {
+func ExampleClient_NewLoopbackInterface() {
 	agent := newRestconfAgent()
 	defer agent.Close()
 
