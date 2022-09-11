@@ -12,29 +12,31 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	agent := newRestconfAgent()
-	defer agent.Close()
+	server := newRestconfServer()
+	defer server.Close()
 
 	expectedClient := &Client{
-		httpClient:  &http.Client{Timeout: 30 * time.Second},
-		restconfURL: agent.URL,
-		username:    "username",
-		password:    "password",
+		httpClient: &http.Client{Timeout: 30 * time.Second},
 	}
-	actualClient := New(30*time.Second, agent.URL, expectedClient.username, expectedClient.password)
+
+	actualClient := New(30 * time.Second)
 
 	require.Equal(t, expectedClient, actualClient)
 }
 
 func TestNewLoopbackInterface(t *testing.T) {
+	server := newRestconfServer()
+	defer server.Close()
+
 	testCase := struct {
-		testName   string
-		httpClient *http.Client
-		username   string
-		password   string
-		config     IetfInterfaceRequest
+		testName string
+		URL      string
+		username string
+		password string
+		config   IetfInterfaceRequest
 	}{
 		testName: "create a loopback interface",
+		URL:      server.URL,
 		username: "username",
 		password: "password",
 		config: IetfInterfaceRequest{IetfInterface: IetfInterface{
@@ -48,11 +50,12 @@ func TestNewLoopbackInterface(t *testing.T) {
 				}}}}},
 	}
 
-	agent := newRestconfAgent()
-	defer agent.Close()
-
-	client := New(30*time.Second, agent.URL, testCase.username, testCase.password)
-	response, err := client.NewLoopbackInterface(context.Background(), testCase.config)
+	client := New(30 * time.Second)
+	response, err := client.NewLoopbackInterface(context.Background(), testCase.config, Server{
+		URL:      server.URL,
+		username: testCase.username,
+		password: testCase.password,
+	})
 
 	require.NoError(t, err)
 	require.NotEmpty(t, response)
@@ -79,7 +82,7 @@ func TestFormInterfaceConfig(t *testing.T) {
 	require.JSONEq(t, string(expectedConfig), string(actualConfig))
 }
 
-func newRestconfAgent() *httptest.Server {
+func newRestconfServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))

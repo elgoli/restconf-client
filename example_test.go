@@ -7,17 +7,17 @@ import (
 )
 
 func ExampleNew() {
-	client := New(30*time.Second, "URL", "username", "password")
+	client := New(30 * time.Second)
 
-	fmt.Println(client.restconfURL)
-	// Output: URL
+	fmt.Println(client.httpClient.Timeout)
+	// Output: 30s
 }
 
 func ExampleClient_NewLoopbackInterface() {
-	agent := newRestconfAgent()
-	defer agent.Close()
+	server := newRestconfServer()
+	defer server.Close()
 
-	client := New(30*time.Second, agent.URL, "username", "password")
+	client := New(30 * time.Second)
 
 	config := IetfInterfaceRequest{IetfInterface: IetfInterface{
 		Name:    "loopback200",
@@ -29,7 +29,10 @@ func ExampleClient_NewLoopbackInterface() {
 				Netmask: "255.255.255.255",
 			}}}}}
 
-	response, _ := client.NewLoopbackInterface(context.Background(), config)
+	response, _ := client.NewLoopbackInterface(context.Background(), config, Server{
+		URL:      server.URL,
+		username: "username",
+		password: "password"})
 
 	fmt.Println(response.StatusCode)
 	// Output: 200
