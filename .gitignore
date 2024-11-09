@@ -7,3 +7,5 @@
 # Editor and IDE
 .idea
 *~
+
+.DS_Store
