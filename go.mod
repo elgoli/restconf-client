@@ -1,4 +1,4 @@
-module gitlab.com/elgol/restconf-client
+module github.com/elnazdev/restconf-client
 
 go 1.18
 
